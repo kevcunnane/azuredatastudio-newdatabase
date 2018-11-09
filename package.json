@@ -1,7 +1,7 @@
 {
     "name": "newdatabase",
     "displayName": "New Database Creator",
-    "description": "Create new Databases from Object Explorer",
+    "description": "Adds a 'New Database' command. Right-click on the Databases for a connection in Object Explorer, or run 'New Database' from the command palette",
     "version": "0.0.1",
     "publisher": "kevcunnane",
     "engines": {
