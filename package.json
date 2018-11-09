@@ -3,6 +3,10 @@
     "displayName": "New Database Creator",
     "description": "Adds a 'New Database' command. Right-click on the Databases for a connection in Object Explorer, or run 'New Database' from the command palette",
     "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kevcunnane/azuredatastudio-newdatabase"
+    },
     "publisher": "kevcunnane",
     "engines": {
         "vscode": "^1.28.0",
