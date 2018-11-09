@@ -30,7 +30,13 @@
                     "group": "1data1"
                 }
             ]
-        }
+        },
+        "keybindings":[
+            {
+                "command": "newdatabase.createdb",
+                "key": "Ctrl+Shift+d b"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
