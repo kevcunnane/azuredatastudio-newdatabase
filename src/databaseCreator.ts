@@ -162,7 +162,7 @@ export class DatabaseCreator {
 
     private async runCreateDatabaseQuery(dbName: string, queryProvider: sqlops.QueryProvider, tempUri: string) {
         let query = `BEGIN TRY
-    CREATE DATABASE [${dbName}]
+    CREATE DATABASE [${dbName.replace(/]/g , "]]")}]
     SELECT 1 AS NoError
 END TRY
 BEGIN CATCH
