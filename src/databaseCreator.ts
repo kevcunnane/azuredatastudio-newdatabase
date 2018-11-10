@@ -58,7 +58,7 @@ export class DatabaseCreator {
         }
 
         // Prompt the user for a new database name
-        let dbName = await vscode.window.showInputBox({ prompt: 'Enter database name', });
+        let dbName = await vscode.window.showInputBox({ prompt: 'Enter database name', validateInput: (value) => value && value.length > 124 ? 'Must be 124 chars or less' : undefined});
         if (!dbName) {
             return;
         }
