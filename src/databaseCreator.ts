@@ -52,13 +52,9 @@ export class DatabaseCreator {
     public async createDatabase(context: sqlops.ObjectExplorerContext): Promise<void> {
         // Make sure we have a connection
         let connection = await this.lookupConnection(context);
-        if (!connection) {
-            vscode.window.showInformationMessage('Cannot create database as no active connection could be found');
-            return;
-        }
 
         // Prompt the user for a new database name
-        let dbName = await vscode.window.showInputBox({ prompt: 'Enter database name', validateInput: (value) => value && value.length > 124 ? 'Must be 124 chars or less' : undefined});
+        let dbName = await vscode.window.showInputBox({ prompt: `Name of database to create on server ${connection.options['server']}`, validateInput: (value) => value && value.length > 124 ? 'Must be 124 chars or less' : undefined});
         if (!dbName) {
             return;
         }
@@ -73,7 +69,7 @@ export class DatabaseCreator {
         });
 
     }
-    
+
     private async doCreateDatabase(operation: sqlops.BackgroundOperation, dbName: string, connection: sqlops.IConnectionProfile | sqlops.connection.Connection): Promise<void> {
         let tempUri = `untitled:createdb${this.counter++}`;
         let queryProvider = sqlops.dataprotocol.getProvider<sqlops.QueryProvider>(mssql, sqlops.DataProviderType.QueryProvider);
@@ -121,15 +117,34 @@ export class DatabaseCreator {
         let connection: sqlops.IConnectionProfile | sqlops.connection.Connection = undefined;
         if (context) {
             connection = context.connectionProfile;
-        }
-        else {
+        } else {
             connection = await sqlops.connection.getCurrentConnection();
             if (connection && connection.providerName === mssql) {
                 let credentials = await sqlops.connection.getCredentials(connection.connectionId);
                 connection.options = Object.assign(connection.options, credentials);
+                let confirmed: boolean = await this.verifyConnectionIsCorrect(connection);
+                if (!confirmed) {
+                    // Return early to avoid information message
+                    return undefined;
+                }
             }
         }
+
+        if (!connection) {
+            vscode.window.showInformationMessage('Cannot create database as no active connection could be found');return;
+        }
         return connection;
+    }
+    
+    private async verifyConnectionIsCorrect(connection: sqlops.IConnectionProfile | sqlops.connection.Connection): Promise<boolean> {
+        let confirmed = await vscode.window.showQuickPick([
+            <ValuedQuickPickItem<boolean>>{ label: 'Yes', value: true },
+            <ValuedQuickPickItem<boolean>>{ label: 'No', value: false }
+        ], {
+            placeHolder: `Create a new database on server ${connection.options['server']}?`
+        });
+
+        return confirmed && confirmed.value === true;
     }
 
     /**
@@ -178,4 +193,8 @@ END CATCH
     private errorOnTimeout(ms: number): Promise<void> {
         return new Promise((resolve, reject) => setTimeout(reject, ms));
     }
+}
+
+interface ValuedQuickPickItem<T> extends vscode.QuickPickItem {
+    value: T;
 }
