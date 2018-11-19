@@ -2,11 +2,12 @@
     "name": "newdatabase",
     "displayName": "New Database",
     "description": "Adds a 'New Database' command. Right-click on the Databases for a connection in Object Explorer, or run 'New Database' from the command palette",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "repository": {
         "type": "git",
         "url": "https://github.com/kevcunnane/azuredatastudio-newdatabase"
     },
+    "icon": "https://raw.githubusercontent.com/Microsoft/vscode-mssql/master/images/sqlserver.png",
     "publisher": "kevcunnane",
     "engines": {
         "vscode": "^1.28.0",
