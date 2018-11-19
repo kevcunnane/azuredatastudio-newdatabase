@@ -7,7 +7,7 @@
         "type": "git",
         "url": "https://github.com/kevcunnane/azuredatastudio-newdatabase"
     },
-    "icon": "https://raw.githubusercontent.com/Microsoft/vscode-mssql/master/images/sqlserver.png",
+    "icon": "images/sqlserver.png",
     "publisher": "kevcunnane",
     "engines": {
         "vscode": "^1.28.0",
