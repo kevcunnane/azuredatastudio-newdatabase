@@ -36,7 +36,7 @@
                 }
             ]
         },
-        "keybindings":[
+        "keybindings": [
             {
                 "command": "newdatabase.createdb",
                 "key": "Ctrl+Shift+d b"
@@ -52,11 +52,12 @@
         "updatesqlops": "curl -o ./typingssqlops.proposed.d.ts https://raw.githubusercontent.com/Microsoft/azuredatastudio/master/src/sql/sqlops.proposed.d.ts"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^7.0.43",
+        "event-stream": "3.3.4",
         "sqlops": "github:anthonydresser/sqlops-extension-sqlops",
         "tslint": "^5.8.0",
-        "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6"
     }
 }
