@@ -2,7 +2,7 @@
     "name": "newdatabase",
     "displayName": "New Database",
     "description": "Adds a 'New Database' command. Right-click on the Databases for a connection in Object Explorer, or run 'New Database' from the command palette",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/kevcunnane/azuredatastudio-newdatabase"
