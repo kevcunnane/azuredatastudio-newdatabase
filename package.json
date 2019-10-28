@@ -2,7 +2,7 @@
     "name": "newdatabase",
     "displayName": "New Database",
     "description": "Adds a 'New Database' command. Right-click on the Databases for a connection in Object Explorer, or run 'New Database' from the command palette",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/kevcunnane/azuredatastudio-newdatabase"
@@ -11,7 +11,7 @@
     "publisher": "kevcunnane",
     "engines": {
         "vscode": "^1.28.0",
-        "sqlops": "*"
+        "azdata": "*"
     },
     "categories": [
         "Other"
@@ -47,20 +47,20 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install && node ./node_modules/sqlops/bin/install",
+        "postinstall": "node ./node_modules/vscode/bin/install && node ./node_modules/azdata/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "updatesqlops": "curl -o ./typings/sqlops.proposed.d.ts https://raw.githubusercontent.com/Microsoft/azuredatastudio/master/src/sql/sqlops.proposed.d.ts"
+        "updateazdata": "curl -o ./typings/azdata.proposed.d.ts https://raw.githubusercontent.com/Microsoft/azuredatastudio/master/src/sql/azdata.proposed.d.ts"
     },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
+        "azdata": "^1.0.0",
         "event-stream": "3.3.4",
-        "sqlops": "github:anthonydresser/sqlops-extension-sqlops",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vscode": "^1.1.6"
     },
     "dependencies": {
-        "azuredatastudio-dmpwrapper": "^0.5.0"
+        "azuredatastudio-dmpwrapper": "^1.0.1"
     }
 }

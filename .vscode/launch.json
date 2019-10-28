@@ -5,9 +5,9 @@
 
 // To debug the extension:
 // 1. please install the "SQL Operations Studio Debug" extension into VSCode
-// 2. Ensure sqlops is added to your path:
+// 2. Ensure azdata is added to your path:
 //    - open SQL Operations Studio
-//    - run the command "Install 'sqlops' command in PATH"
+//    - run the command "Install 'azdata' command in PATH"
 {
 	"version": "0.2.0",
     "configurations": [
@@ -28,7 +28,7 @@
             "name": "Extension Tests",
             "type": "sqlopsExtensionHost",
             "request": "launch",
-            "runtimeExecutable": "sqlops",
+            "runtimeExecutable": "azuredatastudio",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionTestsPath=${workspaceFolder}/out/test"

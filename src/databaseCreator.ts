@@ -7,9 +7,27 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import * as sqlops from 'sqlops';
+import * as azdata from 'azdata';
 import { ConnectionContext } from 'azuredatastudio-dmpwrapper';
 const mssql = 'MSSQL';
+
+export function toConnectionProfile(connectionInfo: azdata.connection.ConnectionProfile): azdata.IConnectionProfile {
+    if (!connectionInfo || !connectionInfo.options) {
+        return undefined;
+    }
+    let options = connectionInfo.options;
+	let connProfile: azdata.IConnectionProfile = Object.assign(<azdata.IConnectionProfile>{},
+		connectionInfo,
+		{
+			serverName: `${options['server']}`,
+			userName: options['user'],
+			password: options['password'],
+            id: connectionInfo.connectionId,
+            providerName: connectionInfo.providerId
+		}
+	);
+    return connProfile;
+}
 
 export class DatabaseCreator {
 
@@ -19,10 +37,10 @@ export class DatabaseCreator {
     /**
      * Prompts a user for database name and then connects to the existing DB and runs the create database command
      *
-     * @param {sqlops.ObjectExplorerContext} context
+     * @param {azdata.ObjectExplorerContext} context
      * @returns {Promise<void>}
      */
-    public async createDatabase(context: sqlops.ObjectExplorerContext): Promise<void> {
+    public async createDatabase(context: azdata.ObjectExplorerContext): Promise<void> {
         // Make sure we have a connection (handle command palette vs. context menu entry points)
         let connection = await this.lookupConnection(context);
         if (!connection) {
@@ -37,8 +55,8 @@ export class DatabaseCreator {
         }
 
         // Run the create database as a task since it can take a few seconds to connect and execute the creation statement
-        sqlops.tasks.startBackgroundOperation({
-            connection: connection as sqlops.connection.Connection,
+        azdata.tasks.startBackgroundOperation({
+            connection: connection as azdata.connection.Connection,
             displayName: `Creating Database ${dbName}`,
             description: '',
             isCancelable: false,
@@ -47,14 +65,14 @@ export class DatabaseCreator {
 
     }
 
-    private async doCreateDatabase(operation: sqlops.BackgroundOperation, dbName: string, connection: sqlops.IConnectionProfile | sqlops.connection.Connection): Promise<void> {
+    private async doCreateDatabase(operation: azdata.BackgroundOperation, dbName: string, connection: azdata.IConnectionProfile | azdata.connection.Connection): Promise<void> {
         
-        let connectionProvider = sqlops.dataprotocol.getProvider<sqlops.ConnectionProvider>(mssql, sqlops.DataProviderType.ConnectionProvider);
+        let connectionProvider = azdata.dataprotocol.getProvider<azdata.ConnectionProvider>(mssql, azdata.DataProviderType.ConnectionProvider);
         let connectionContext = new ConnectionContext(connectionProvider);
 
         try {
             // 1. Connect to the server
-            operation.updateStatus(sqlops.TaskStatus.InProgress, 'Connecting to database');
+            operation.updateStatus(azdata.TaskStatus.InProgress, 'Connecting to database');
             let connected = await connectionContext.tryConnect(connection);
             if (!connected) {
                 vscode.window.showErrorMessage('Failed to connect, canceling create database operation');
@@ -62,7 +80,7 @@ export class DatabaseCreator {
             }
 
             // 2. Run Create Database query 
-            operation.updateStatus(sqlops.TaskStatus.InProgress, 'Executing create database query');
+            operation.updateStatus(azdata.TaskStatus.InProgress, 'Executing create database query');
             let query = `BEGIN TRY
     CREATE DATABASE [${dbName.replace(/]/g , "]]")}]
     SELECT 1 AS NoError
@@ -78,14 +96,14 @@ END CATCH
             
             // 3. Notify on success
             let successMsg = `Database ${dbName} created. Refresh the Databases node to see it`;
-            operation.updateStatus(sqlops.TaskStatus.Succeeded, successMsg);
+            operation.updateStatus(azdata.TaskStatus.Succeeded, successMsg);
             vscode.window.showInformationMessage(successMsg);
         } catch (error) {
             // 4. Notify on failure
             let errorString = error instanceof Error ? error.message : error;
             let msg = 'Error adding database: ' + errorString;
             vscode.window.showErrorMessage(msg);
-            operation.updateStatus(sqlops.TaskStatus.Failed, msg);
+            operation.updateStatus(azdata.TaskStatus.Failed, msg);
         } finally {
             connectionContext.dispose();
         }
@@ -96,17 +114,18 @@ END CATCH
      * Finds the connection, either passed into our callback or the current globally active connection.
      * It then ensures any credential needed for connection is present and returns.
      *
-     * @param {sqlops.ObjectExplorerContext} context
-     * @returns {(Promise<sqlops.IConnectionProfile | sqlops.connection.Connection>)}
+     * @param {azdata.ObjectExplorerContext} context
+     * @returns {(Promise<azdata.IConnectionProfile | azdata.connection.Connection>)}
      */
-    private async lookupConnection(context: sqlops.ObjectExplorerContext): Promise<sqlops.IConnectionProfile | sqlops.connection.Connection> {
-        let connection: sqlops.IConnectionProfile | sqlops.connection.Connection = undefined;
-        if (context) {
+    private async lookupConnection(context: azdata.ObjectExplorerContext): Promise<azdata.IConnectionProfile | azdata.connection.Connection> {
+        let connection: azdata.IConnectionProfile = undefined;
+        if (context && context.connectionProfile) {
             connection = context.connectionProfile;
         } else {
-            connection = await sqlops.connection.getCurrentConnection();
+            let conn = await azdata.connection.getCurrentConnection();
+            connection = toConnectionProfile(conn);
             if (connection && connection.providerName === mssql) {
-                let credentials = await sqlops.connection.getCredentials(connection.connectionId);
+                let credentials = await azdata.connection.getCredentials(connection.id);
                 connection.options = Object.assign(connection.options, credentials);
                 let confirmed: boolean = await this.verifyConnectionIsCorrect(connection);
                 if (!confirmed) {
@@ -119,7 +138,7 @@ END CATCH
         return connection;
     }
     
-    private async verifyConnectionIsCorrect(connection: sqlops.IConnectionProfile | sqlops.connection.Connection): Promise<boolean> {
+    private async verifyConnectionIsCorrect(connection: azdata.IConnectionProfile | azdata.connection.Connection): Promise<boolean> {
         let confirmed = await vscode.window.showQuickPick([
             <ValuedQuickPickItem<boolean>>{ label: 'Yes', value: true },
             <ValuedQuickPickItem<boolean>>{ label: 'No', value: false }
